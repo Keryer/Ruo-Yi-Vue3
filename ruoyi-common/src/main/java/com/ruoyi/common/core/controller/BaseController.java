@@ -69,6 +69,19 @@ public class BaseController
     }
 
     /**
+     * 设置首页请求排序数据
+     */
+    protected void startIndexOrderBy()
+    {
+        PageDomain pageDomain = TableSupport.buildIndexPageRequest();
+        if (StringUtils.isNotEmpty(pageDomain.getOrderBy()))
+        {
+            String orderBy = SqlUtil.escapeOrderBySql(pageDomain.getOrderBy());
+            PageHelper.orderBy(orderBy);
+        }
+    }
+
+    /**
      * 清理分页的线程变量
      */
     protected void clearPage()

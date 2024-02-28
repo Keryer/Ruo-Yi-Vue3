@@ -20,6 +20,8 @@ import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.system.domain.SysNotice;
 import com.ruoyi.system.service.ISysNoticeService;
 
+import static com.ruoyi.common.utils.PageUtils.startIndexPage;
+
 /**
  * 公告 信息操作处理
  * 
@@ -40,6 +42,18 @@ public class SysNoticeController extends BaseController
     public TableDataInfo list(SysNotice notice)
     {
         startPage();
+        List<SysNotice> list = noticeService.selectNoticeList(notice);
+        return getDataTable(list);
+    }
+
+    /**
+     * 获取首页通知公告列表
+     */
+    @PreAuthorize("@ss.hasPermi('system:notice:list')")
+    @GetMapping("/list1")
+    public TableDataInfo list1(SysNotice notice)
+    {
+        startIndexPage();
         List<SysNotice> list = noticeService.selectNoticeList(notice);
         return getDataTable(list);
     }

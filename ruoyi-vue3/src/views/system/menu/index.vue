@@ -55,6 +55,7 @@
          :default-expand-all="isExpandAll"
          :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
       >
+
          <el-table-column prop="menuName" label="菜单名称" :show-overflow-tooltip="true" width="160"></el-table-column>
          <el-table-column prop="icon" label="图标" align="center" width="100">
             <template #default="scope">
@@ -316,6 +317,7 @@ const { queryParams, form, rules } = toRefs(data);
 function getList() {
   loading.value = true;
   listMenu(queryParams.value).then(response => {
+     console.log(response.data)
     menuList.value = proxy.handleTree(response.data, "menuId");
     loading.value = false;
   });
@@ -324,6 +326,7 @@ function getList() {
 function getTreeselect() {
   menuOptions.value = [];
   listMenu().then(response => {
+     console.log(111)
     const menu = { menuId: 0, menuName: "主类目", children: [] };
     menu.children = proxy.handleTree(response.data, "menuId");
     menuOptions.value.push(menu);

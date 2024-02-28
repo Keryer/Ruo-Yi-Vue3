@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysTableMapper">
+
+    <resultMap type="DatahouseTable" id="DatahouseTableResult">
+        <id     property="tableId"          column="table_id"           />
+        <result property="tableName"        column="table_name"         />
+        <result property="tableNameZh"      column="table_name_zh"      />
+        <result property="masterId"         column="master_id"          />
+        <result property="masterName"       column="master_name"        />
+        <result property="project"          column="project"            />
+        <result property="perms"            column="perms"              />
+    </resultMap>
+
+    <sql id="selectTableVo">
+        select table_id, table_name, table_name_zh, master_id, master_name, project
+        from datahouse_table
+    </sql>
+
+    <select id="selectTableList" resultMap="DatahouseTableResult" parameterType="DatahouseTable">
+        <include refid="selectTableVo"/>
+        <where>
+            <if test="tableName != null and tableName != ''">
+                and table_name like concat('%', #{tableName}, '%')
+            </if>
+            <if test="tableNameZh != null and tableNameZh != ''">
+                and table_name_zh like concat('%', #{tableNameZh}, '%')
+            </if>
+            <if test="masterId != null and masterId != ''">
+                and master_id = #{masterId}
+            </if>
+            <if test="masterName != null and masterName != ''">
+                and master_name like concat('%', #{masterName}, '%')
+            </if>
+            <if test="project != null and project != ''">
+                and project = #{project}
+            </if>
+        </where>
+        order by master_id
+    </select>
+
+    <select id="selectTableTreeAll" resultMap="DatahouseTableResult">
+        select distinct t.table_id, t.table_name, t.table_name_zh, t.master_id, t.master_name, t.project, ifnull(t.perms,'') as perms
+        from datahouse_table t
+        order by t.master_id
+    </select>
+
+    <select id="selectTableListByUserId" parameterType="DatahouseTable" resultMap="DatahouseTableResult">
+        select distinct t.table_id, t.table_name, t.table_name_zh, t.master_id, t.master_name, t.project, ifnull(t.perms,'') as perms
+        from datahouse_table t
+        left join role_table rt on rt.table_id = t.table_id
+        left join sys_user_role ur on rt.role_id = ur.role_id
+        left join sys_role ro on ur.role_id = ro.role_id
+        where ur.user_id = #{params.userId}
+        <if test="tableName != null and tableName != ''">
+            and t.table_name like concat('%', #{tableName}, '%')
+        </if>
+        order by t.master_id
+    </select>
+
+    <select id="selectTableTreeByUserId" parameterType="Long" resultMap="DatahouseTableResult">
+        select distinct t.table_id, t.table_name, t.table_name_zh, t.master_id, t.master_name, t.project, ifnull(t.perms,'') as perms
+        from datahouse_table t
+            left join role_table rt on t.table_id = rt.table_id
+            left join sys_user_role ur on rt.role_id = ur.role_id
+            left join sys_role ro on ur.role_id = ro.role_id
+            left join gen_table gt on rt.table_id = gt.table_id
+        where ur.user_id = #{userId}
+        order by t.master_id
+    </select>
+
+    <select id="selectTableListByRoleId" resultType="Long">
+        select t.table_id
+        from datahouse_table t
+            left join role_table rt on t.table_id = rt.table_id
+        where rt.role_id = #{roleId}
+        <if test="tableCheckStrictly">
+            and t.table_id not in (select t.master_id from datahouse_table t inner join role_table rt on t.table_id = rt.table_id where rt.role_id = #{roleId})
+        </if>
+        order by t.master_id
+    </select>
+
+    <select id="selectTablePerms" resultType="String">
+        select distinct t.perms
+        from datahouse_table t
+            left join role_table rt on t.table_id = rt.table_id
+            left join sys_user_role ur on rt.role_id = ur.role_id
+    </select>
+
+    <select id="selectTablePermsByUserId" parameterType="Long" resultType="String">
+        select distinct t.perms
+        from datahouse_table t
+            left join role_table rt on t.table_id = rt.table_id
+            left join sys_user_role ur on rt.role_id = ur.role_id
+            left join sys_role r on r.role_id = ur.role_id
+        where r.status = '0' and ur.user_id = #{userId}
+    </select>
+
+    <select id="selectTablePermsByRoleId" parameterType="Long" resultType="String">
+        select distinct t.perms
+        from datahouse_table t
+            left join role_table rt on t.table_id = rt.table_id
+        where rt.role_id = #{roleId}
+    </select>
+
+    <select id="selectTableById" parameterType="Long" resultMap="DatahouseTableResult">
+        <include refid="selectTableVo"/>
+        where table_id = #{tableId}
+    </select>
+
+    <select id="hasChildByTableId" resultType="Integer" parameterType="Long">
+        select count(1) from datahouse_table where master_id = #{tableId}
+    </select>
+
+    <select id="checkTableNameUnique" parameterType="DatahouseTable" resultMap="DatahouseTableResult">
+        <include refid="selectTableVo"/>
+        where table_name = #{tableName} and master_id = #{masterId} limit 1
+    </select>
+
+    <update id="updateTable" parameterType="DatahouseTable">
+        update datahouse_table
+        <set>
+            <if test="tableName != null and tableName != ''">
+                table_name = #{tableName},
+            </if>
+            <if test="tableNameZh != null and tableNameZh != ''">
+                table_name_zh = #{tableNameZh},
+            </if>
+            <if test="masterId != null and masterId != ''">
+                master_id = #{masterId},
+            </if>
+            <if test="masterName != null and masterName != ''">
+                master_name = #{masterName},
+            </if>
+            <if test="project != null and project != ''">
+                project = #{project},
+            </if>
+            <if test="perms != null and perms != ''">
+                perms = #{perms},
+            </if>
+        </set>
+        where table_id = #{tableId}
+    </update>
+
+    <insert id="insertTable" parameterType="DatahouseTable">
+        insert into datahouse_table(
+        <if test="tableId != null and tableId != ''">
+            table_id,
+        </if>
+        <if test="tableName != null and tableName != ''">
+            table_name,
+        </if>
+        <if test="tableNameZh != null and tableNameZh != ''">
+            table_name_zh,
+        </if>
+        <if test="masterId != null and masterId != ''">
+            master_id,
+        </if>
+        <if test="masterName != null and masterName != ''">
+            master_name,
+        </if>
+        <if test="project != null and project != ''">
+            project,
+        </if>
+        <if test="perms != null and perms != ''">
+            perms,
+        </if>
+        )values (
+        <if test="tableId != null and tableId != ''">
+            #{tableId},
+        </if>
+        <if test="tableName != null and tableName != ''">
+            #{tableName},
+        </if>
+        <if test="tableNameZh != null and tableNameZh != ''">
+            #{tableNameZh},
+        </if>
+        <if test="masterId != null and masterId != ''">
+            #{masterId},
+        </if>
+        <if test="masterName != null and masterName != ''">
+            #{masterName},
+        </if>
+        <if test="project != null and project != ''">
+            #{project},
+        </if>
+        <if test="perms != null and perms != ''">
+            #{perms},
+        </if>
+        )
+    </insert>
+
+    <delete id="deleteTableById" parameterType="Long">
+        delete from datahouse_table where table_id = #{tableId}
+    </delete>
+
+</mapper>

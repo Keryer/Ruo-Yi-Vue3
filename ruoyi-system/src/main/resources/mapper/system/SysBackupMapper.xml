@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysBackupMapper">
+
+    <resultMap id="SysBackupResult" type="DatahouseJob">
+        <id     property="jobId"            column="job_id"             />
+        <result property="projectName"      column="project_name"       />
+        <result property="storageAddress"   column="storage_address"    />
+        <result property="transferStation"  column="transfer_station"   />
+        <result property="comment"          column="comment"            />
+        <result property="state"            column="state"              />
+        <result property="disposeTime"      column="dispose_time"       />
+        <result property="operation"        column="operation"          />
+        <result property="createTime"       column="create_time"        />
+    </resultMap>
+
+    <sql id="selectJobVo">
+        select job_id, project_name, storage_address, transfer_station, comment, state, dispose_time, operation, create_time
+        from datahouse_job
+    </sql>
+
+    <select id="selectJobList" parameterType="DatahouseJob" resultMap="SysBackupResult">
+        <include refid="selectJobVo"/>
+        <where>
+            <if test="jobId != null and jobId != ''">
+                AND job_id like concat('%', #{jobId}, '%')
+            </if>
+            <if test="projectName != null and projectName != ''">
+                AND project_name like concat('%', #{projectName}, '%')
+            </if>
+            <if test="state != null and state != ''">
+                AND state = #{state}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insertJob" parameterType="DatahouseJob" keyProperty="jobId">
+        insert into datahouse_job (
+            <if test="jobId != null and jobId != 0">job_id,</if>
+            <if test="projectName != null and projectName != '' ">project_name, </if>
+            <if test="storageAddress != null and storageAddress != '' ">storage_address, </if>
+            <if test="transferStation != null and transferStation != '' ">transfer_station, </if>
+            <if test="comment != null and comment != ''">comment,</if>
+            <if test="state != null and state != ''">state,</if>
+            <if test="disposeTime != null and disposeTime != ''">dispose_time,</if>
+            <if test="operation != null and operation != ''">operation,</if>
+            create_time
+        )values(
+            <if test="jobId != null and jobId != 0">#{jobId},</if>
+            <if test="projectName != null and projectName != '' ">#{projectName}, </if>
+            <if test="storageAddress != null and storageAddress != '' ">#{storageAddress}, </if>
+            <if test="transferStation != null and transferStation != '' ">#{transferStation}, </if>
+            <if test="comment != null and comment != ''">#{comment},</if>
+            <if test="state != null and state != ''">#{state},</if>
+            <if test="disposeTime != null and disposeTime != ''">#{disposeTime},</if>
+            <if test="operation != null and operation != ''">#{operation},</if>
+            sysdate()
+        )
+    </insert>
+
+    <delete id="deleteJobByIds" parameterType="Long">
+        delete from datahouse_job where job_id in
+        <foreach collection="array" item="jobId" open="(" separator="," close=")">
+            #{jobId}
+        </foreach>
+    </delete>
+
+    <update id="updateJob" parameterType="DatahouseJob">
+        update datahouse_job
+        <set>
+            <if test="projectName != null and projectName != '' ">project_name = #{projectName}, </if>
+            <if test="storageAddress != null and storageAddress != '' ">storage_address = #{storageAddress}, </if>
+            <if test="transferStation != null and transferStation != '' ">transfer_station = #{transferStation}, </if>
+            <if test="comment != null and comment != ''">comment = #{comment},</if>
+            <if test="state != null and state != ''">state = #{state},</if>
+            <if test="disposeTime != null and disposeTime != ''">dispose_time = #{disposeTime},</if>
+            <if test="operation != null and operation != ''">operation = #{operation},</if>
+        </set>
+        where job_id = #{jobId}
+    </update>
+
+    <select id="getJobById" resultMap="SysBackupResult">
+        <include refid="selectJobVo"/>
+        where job_id = #{jobId}
+    </select>
+</mapper>

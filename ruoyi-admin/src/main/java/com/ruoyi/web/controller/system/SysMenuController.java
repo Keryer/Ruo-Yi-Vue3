@@ -41,6 +41,7 @@ public class SysMenuController extends BaseController
     public AjaxResult list(SysMenu menu)
     {
         List<SysMenu> menus = menuService.selectMenuList(menu, getUserId());
+        System.out.println("menus = " + menus.get(1).getChildren());
         return success(menus);
     }
 

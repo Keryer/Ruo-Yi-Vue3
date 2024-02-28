@@ -42,6 +42,9 @@ public class SysRole extends BaseEntity
     /** 菜单树选择项是否关联显示（ 0：父子不互相关联显示 1：父子互相关联显示） */
     private boolean menuCheckStrictly;
 
+    /** 实体表树选择项是否关联显示（ 0：父子不互相关联显示 1：父子互相关联显示） */
+    private boolean tableCheckStrictly;
+
     /** 部门树选择项是否关联显示（0：父子不互相关联显示 1：父子互相关联显示 ） */
     private boolean deptCheckStrictly;
 
@@ -149,6 +152,15 @@ public class SysRole extends BaseEntity
         this.menuCheckStrictly = menuCheckStrictly;
     }
 
+    public boolean isTableCheckStrictly()
+    {
+        return tableCheckStrictly;
+    }
+
+    public void setTableCheckStrictly(boolean tableCheckStrictly)
+    {
+        this.tableCheckStrictly = tableCheckStrictly;
+    }
     public boolean isDeptCheckStrictly()
     {
         return deptCheckStrictly;

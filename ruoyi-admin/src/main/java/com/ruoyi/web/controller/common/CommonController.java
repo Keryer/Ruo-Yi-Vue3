@@ -1,5 +1,5 @@
 package com.ruoyi.web.controller.common;
-
+//本文件中包含文件下载、文件上传和本地资源下载功能
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
@@ -30,7 +30,7 @@ import com.ruoyi.framework.config.ServerConfig;
 @RequestMapping("/common")
 public class CommonController
 {
-    private static final Logger log = LoggerFactory.getLogger(CommonController.class);
+    private static final Logger log = LoggerFactory.getLogger(CommonController.class);      //创建名为CommonController.class的日志对象，该对象可以之后在控制台中输出INFO等日志内容
 
     @Autowired
     private ServerConfig serverConfig;
@@ -48,6 +48,7 @@ public class CommonController
     {
         try
         {
+            //检查所下载文件名是否合法
             if (!FileUtils.checkAllowDownload(fileName))
             {
                 throw new Exception(StringUtils.format("文件名称({})非法，不允许下载。 ", fileName));
@@ -141,6 +142,7 @@ public class CommonController
     {
         try
         {
+            //检查该资源是否是允许下载的
             if (!FileUtils.checkAllowDownload(resource))
             {
                 throw new Exception(StringUtils.format("资源文件({})非法，不允许下载。 ", resource));

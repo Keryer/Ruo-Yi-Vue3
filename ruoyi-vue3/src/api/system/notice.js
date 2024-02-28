@@ -8,6 +8,14 @@ export function listNotice(query) {
     params: query
   })
 }
+// 查询首页公告列表
+export function listIndexNotice(query) {
+  return request({
+    url: '/system/notice/list1',
+    method: 'get',
+    params: query
+  })
+}
 
 // 查询公告详细
 export function getNotice(noticeId) {

@@ -93,7 +93,12 @@
                <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
             </template>
          </el-table-column>
-         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+         <el-table-column label="内容详情" align="center" prop="details" width="100" >
+            <template #default="scope">
+               <el-button link type="primary"  @click="details(scope.row)" >详情</el-button>
+            </template>
+         </el-table-column>
+         <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="200">
             <template #default="scope">
                <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['system:notice:edit']">修改</el-button>
                <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['system:notice:remove']" >删除</el-button>
@@ -155,6 +160,42 @@
             </div>
          </template>
       </el-dialog>
+      <!--公告详情对话框-->
+      <el-dialog :title="title" v-model="detail" width="780px" append-to-body>
+         <el-form ref="noticeRef" :model="form" :rules="rules" label-width="80px" :hide-required-asterisk="true">
+            <el-row>
+               <el-col :span="12">
+                  <el-form-item label="公告标题" prop="noticeTitle">
+                     <div>
+                        {{form.noticeTitle}}
+                     </div>
+                  </el-form-item>
+               </el-col>
+               <el-col :span="12">
+                  <el-form-item label="公告类型" prop="noticeType">
+                     <div v-if="form.noticeType === '1' ">
+                        通知
+                     </div>
+                     <div v-if="form.noticeType === '2' ">
+                        公告
+                     </div>
+                  </el-form-item>
+               </el-col>
+               <el-col :span="24" v-if="form.noticeContent">
+                  <el-form-item label="内容">
+
+                     <div> {{ form.noticeContent.replace(/<[^>]+>/g,"") }} </div>
+
+                  </el-form-item>
+               </el-col>
+            </el-row>
+         </el-form>
+         <template #footer>
+            <div class="dialog-footer">
+               <el-button type="primary" @click="closeDetail">确 定</el-button>
+            </div>
+         </template>
+      </el-dialog>
    </div>
 </template>
 
@@ -166,6 +207,7 @@ const { sys_notice_status, sys_notice_type } = proxy.useDict("sys_notice_status"
 
 const noticeList = ref([]);
 const open = ref(false);
+const detail = ref(false);
 const loading = ref(true);
 const showSearch = ref(true);
 const ids = ref([]);
@@ -248,11 +290,25 @@ function handleUpdate(row) {
     title.value = "修改公告";
   });
 }
+/** 获取公告内容*/
+function details(row) {
+   reset();
+   const noticeId = row.noticeId || ids.value;
+   getNotice(noticeId).then(response => {
+      form.value = response.data;
+      detail.value = true;
+      title.value = "详情";
+   });
+}
 /** 提交按钮 */
 function submitForm() {
+   form.value.noticeContent = form.value.noticeContent.replace(/<[^>]+>/g,"")
+   console.log(form.value.noticeContent)
+
   proxy.$refs["noticeRef"].validate(valid => {
     if (valid) {
       if (form.value.noticeId != undefined) {
+
         updateNotice(form.value).then(response => {
           proxy.$modal.msgSuccess("修改成功");
           open.value = false;
@@ -267,6 +323,10 @@ function submitForm() {
       }
     }
   });
+}
+/** 关闭通知内容页面 */
+function closeDetail() {
+   detail.value = false;
 }
 /** 删除按钮操作 */
 function handleDelete(row) {

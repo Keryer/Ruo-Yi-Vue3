@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysDataSourceMapper">
+
+    <resultMap  id="SysDataSourceResult"        type="DataSource">
+        <id     property="databaseId"           column="database_id"        />
+        <result property="databaseName"         column="database_name"      />
+        <result property="databaseUrl"          column="database_url"       />
+        <result property="username"             column="username"           />
+        <result property="password"             column="password"           />
+        <result property="databaseType"         column="database_type"      />
+        <result property="code"                 column="code"               />
+        <result property="datasourceType"       column="datasource_type"    />
+    </resultMap>
+
+
+    <select id="selectSource" parameterType="DataSource" resultMap="SysDataSourceResult">
+        select  database_name, database_url
+        from ${datasourceType}
+        <where>
+            <if test="databaseId != null and databaseId != ''">
+                AND database_id like concat('%', #{databaseId}, '%')
+            </if>
+            <if test="databaseName != null and databaseName != ''">
+                AND database_name like concat('%', #{databaseName}, '%')
+            </if>
+        </where>
+    </select>
+
+</mapper>
